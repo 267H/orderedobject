@@ -1,6 +1,7 @@
 Example usages:
 
-```package main
+```go
+package main
 
 import (
 	"fmt"
