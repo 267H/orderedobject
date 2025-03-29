@@ -7,19 +7,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/267H/orderedform"
 	"github.com/267H/orderedobject"
-	"github.com/267H/orderedquery"
 )
 
 func main() {
 	testBasicJSON()
 	testNestedJSON()
 	testComplexJSON()
-	testOrderedQuery()
-	testOrderedForm()
-	testSpecialCases()
-	fmt.Println("\nAll tests passed successfully!")
+	testSpecialObjectCases()
+	fmt.Println("\nOrderedObject tests passed successfully!")
 }
 
 func testBasicJSON() {
@@ -119,67 +115,8 @@ func testComplexJSON() {
 	fmt.Println("✓ Complex JSON order and encoding verified")
 }
 
-func testOrderedQuery() {
-	fmt.Println("\nTesting OrderedQuery:")
-
-	query := orderedquery.NewQuery(5)
-	query.Add("page", "1")
-	query.Add("sort", "desc")
-	query.Add("filter", "active")
-	query.Add("view", "detailed")
-	query.Add("limit", "50")
-
-	queryString := query.Encode()
-	fmt.Printf("Basic Query string: %s\n", queryString)
-	expectedQuery := "page=1&sort=desc&filter=active&view=detailed&limit=50"
-	assertEqual(queryString, expectedQuery, "Basic Query")
-
-	complexQuery := orderedquery.NewQuery(4)
-	complexQuery.Add("search", "test product")
-	complexQuery.Add("category", "electronics/phones")
-	complexQuery.Add("price_range", "100-500")
-	complexQuery.Add("brand[]", "apple,samsung,google")
-
-	complexQueryString := complexQuery.Encode()
-	fmt.Printf("Complex Query string: %s\n", complexQueryString)
-	expectedComplexQuery := "search=test+product&category=electronics%2Fphones&price_range=100-500&brand%5B%5D=apple%2Csamsung%2Cgoogle"
-	assertEqual(complexQueryString, expectedComplexQuery, "Complex Query")
-	fmt.Println("✓ Query strings verified")
-}
-
-func testOrderedForm() {
-	fmt.Println("\nTesting OrderedForm:")
-
-	form := orderedform.NewForm(6)
-	form.Set("username", "john_doe")
-	form.Set("email", "john@example.com")
-	form.Set("password", "p@ssw0rd!")
-	form.Set("confirm_password", "p@ssw0rd!")
-	form.Set("preferences[theme]", "dark")
-	form.Set("preferences[notifications]", "email,sms")
-
-	formData := form.URLEncode()
-	fmt.Printf("Form data: %s\n", formData)
-	expectedForm := "username=john_doe&email=john%40example.com&password=p%40ssw0rd%21&confirm_password=p%40ssw0rd%21&preferences%5Btheme%5D=dark&preferences%5Bnotifications%5D=email%2Csms"
-	assertEqual(formData, expectedForm, "Complex Form")
-	fmt.Println("✓ Form encoding verified")
-}
-
-func testSpecialCases() {
-	fmt.Println("\nTesting Special Cases:")
-
-	emptyQuery, err := orderedquery.ParseQuery("")
-	if err != nil {
-		log.Fatalf("Failed to parse empty query: %v", err)
-	}
-	assertEqual(emptyQuery.Encode(), "", "Empty Query")
-
-	prefixQuery, err := orderedquery.ParseQuery("?key=value&special=a/b/c")
-	if err != nil {
-		log.Fatalf("Failed to parse query with prefix: %v", err)
-	}
-	assertEqual(prefixQuery.Encode(), "key=value&special=a%2Fb%2Fc", "Prefixed Query")
-
+func testSpecialObjectCases() {
+	fmt.Println("\nTesting Special OrderedObject Cases:")
 	specialObj := orderedobject.NewObject[any](3)
 	specialObj.Set("url", "https://example.com/path/to/resource?param=value")
 	specialObj.Set("html", "<div>test & demo</div>")
@@ -191,9 +128,9 @@ func testSpecialCases() {
 	}
 	expectedSpecialJSON := `{"url":"https://example.com/path/to/resource?param=value","html":"<div>test & demo</div>","path":"/usr/local/bin"}`
 	assertEqual(string(specialJSON), expectedSpecialJSON, "Special Characters JSON")
-
-	fmt.Println("✓ Special cases handled correctly")
+	fmt.Println("✓ Special object cases handled correctly")
 }
+
 
 func assertEqual(got, expected, testName string) {
 	if got != expected {
