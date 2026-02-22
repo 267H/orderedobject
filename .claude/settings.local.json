@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go test -v -count=1 ./... 2>&1)",
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go test -v -count=1 -run 'Test' ./... 2>&1)",
+      "Bash(tee:*)",
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go mod tidy 2>&1)",
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go install golang.org/x/perf/cmd/benchstat@latest 2>&1)",
+      "Bash(benchstat:*)"
+    ]
+  }
+}

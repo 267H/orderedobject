@@ -1,66 +1,130 @@
 package orderedobject
 
-import "github.com/json-iterator/go"
+import (
+	"encoding/json"
+	"fmt"
+	"math"
+	"strconv"
+	"sync"
+	"unsafe"
+)
 
-var jsonCfg = jsoniter.Config{
-	EscapeHTML: false,
-}.Froze()
-
-type jsonMarshaler interface {
-	MarshalJSON() ([]byte, error)
+var bufPool = sync.Pool{
+	New: func() any {
+		buf := make([]byte, 0, 256)
+		return &buf
+	},
 }
 
-func writeJSONValue(enc *jsoniter.Stream, v any) error {
+const hexDigits = "0123456789abcdef"
+
+func appendJSONString(dst []byte, s string) []byte {
+	dst = append(dst, '"')
+	start := 0
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= 0x20 && c != '"' && c != '\\' {
+			continue
+		}
+		if start < i {
+			dst = append(dst, s[start:i]...)
+		}
+		switch c {
+		case '"':
+			dst = append(dst, '\\', '"')
+		case '\\':
+			dst = append(dst, '\\', '\\')
+		case '\n':
+			dst = append(dst, '\\', 'n')
+		case '\r':
+			dst = append(dst, '\\', 'r')
+		case '\t':
+			dst = append(dst, '\\', 't')
+		default:
+			dst = append(dst, '\\', 'u', '0', '0', hexDigits[c>>4], hexDigits[c&0xf])
+		}
+		start = i + 1
+	}
+	if start < len(s) {
+		dst = append(dst, s[start:]...)
+	}
+	dst = append(dst, '"')
+	return dst
+}
+
+func appendFloat64(dst []byte, val float64) ([]byte, error) {
+	if math.IsInf(val, 0) || math.IsNaN(val) {
+		return dst, fmt.Errorf("json: unsupported value: %v", val)
+	}
+	abs := math.Abs(val)
+	ff := byte('f')
+	if abs != 0 && (abs < 1e-6 || abs >= 1e21) {
+		ff = 'e'
+	}
+	return strconv.AppendFloat(dst, val, ff, -1, 64), nil
+}
+
+func appendFloat32(dst []byte, val float32) ([]byte, error) {
+	f := float64(val)
+	if math.IsInf(f, 0) || math.IsNaN(f) {
+		return dst, fmt.Errorf("json: unsupported value: %v", val)
+	}
+	abs := math.Abs(f)
+	ff := byte('f')
+	if abs != 0 && (abs < 1e-6 || abs >= 1e21) {
+		ff = 'e'
+	}
+	return strconv.AppendFloat(dst, f, ff, -1, 32), nil
+}
+
+func appendJSONValue(dst []byte, v any) ([]byte, error) {
 	switch val := v.(type) {
 	case nil:
-		enc.WriteNil()
+		return append(dst, "null"...), nil
 	case string:
-		enc.WriteString(val)
+		return appendJSONString(dst, val), nil
 	case bool:
-		enc.WriteBool(val)
+		if val {
+			return append(dst, "true"...), nil
+		}
+		return append(dst, "false"...), nil
 	case int:
-		enc.WriteInt(val)
+		return strconv.AppendInt(dst, int64(val), 10), nil
 	case int8:
-		enc.WriteInt8(val)
+		return strconv.AppendInt(dst, int64(val), 10), nil
 	case int16:
-		enc.WriteInt16(val)
+		return strconv.AppendInt(dst, int64(val), 10), nil
 	case int32:
-		enc.WriteInt32(val)
+		return strconv.AppendInt(dst, int64(val), 10), nil
 	case int64:
-		enc.WriteInt64(val)
+		return strconv.AppendInt(dst, val, 10), nil
 	case uint:
-		enc.WriteUint(val)
+		return strconv.AppendUint(dst, uint64(val), 10), nil
 	case uint8:
-		enc.WriteUint8(val)
+		return strconv.AppendUint(dst, uint64(val), 10), nil
 	case uint16:
-		enc.WriteUint16(val)
+		return strconv.AppendUint(dst, uint64(val), 10), nil
 	case uint32:
-		enc.WriteUint32(val)
+		return strconv.AppendUint(dst, uint64(val), 10), nil
 	case uint64:
-		enc.WriteUint64(val)
+		return strconv.AppendUint(dst, val, 10), nil
 	case float32:
-		enc.WriteFloat32(val)
+		return appendFloat32(dst, val)
 	case float64:
-		enc.WriteFloat64(val)
-	case jsonMarshaler:
+		return appendFloat64(dst, val)
+	case json.Marshaler:
 		data, err := val.MarshalJSON()
 		if err != nil {
-			return err
+			return dst, err
 		}
-		if _, err := enc.Write(data); err != nil {
-			return err
-		}
+		return append(dst, data...), nil
 	default:
-		enc.WriteVal(v)
+		data, err := json.Marshal(v)
+		if err != nil {
+			return dst, err
+		}
+		return append(dst, data...), nil
 	}
-
-	if enc.Error != nil {
-		err := enc.Error
-		enc.Error = nil
-		return err
-	}
-
-	return nil
 }
 
 type Object[V any] struct {
@@ -141,30 +205,108 @@ func (o *Object[V]) MarshalJSON() ([]byte, error) {
 		return []byte{'{', '}'}, nil
 	}
 
-	enc := jsonCfg.BorrowStream(nil)
+	bp := bufPool.Get().(*[]byte)
+	buf := (*bp)[:0]
 
-	enc.WriteObjectStart()
-	for i := 0; i < n; i++ {
-		if i > 0 {
-			enc.WriteMore()
+	// Pre-size buffer to avoid repeated growth during encoding.
+	if estimated := n*24 + 2; cap(buf) < estimated {
+		buf = make([]byte, 0, estimated)
+	}
+
+	buf = append(buf, '{')
+
+	var err error
+
+	// Type-specialized loops avoid interface boxing allocations for typed objects.
+	// When V is a concrete type like string or int, any(p.v) would allocate
+	// a heap slot per value. Using unsafe.Pointer reads the value directly.
+	var zero V
+	switch any(zero).(type) {
+	case string:
+		for i := range n {
+			if i > 0 {
+				buf = append(buf, ',')
+			}
+			p := &pairs[i]
+			buf = appendJSONString(buf, p.k)
+			buf = append(buf, ':')
+			buf = appendJSONString(buf, *(*string)(unsafe.Pointer(&p.v)))
 		}
-		p := &pairs[i]
-		enc.WriteObjectField(p.k)
-		if err := writeJSONValue(enc, p.v); err != nil {
-			jsonCfg.ReturnStream(enc)
-			return nil, err
+	case bool:
+		for i := range n {
+			if i > 0 {
+				buf = append(buf, ',')
+			}
+			p := &pairs[i]
+			buf = appendJSONString(buf, p.k)
+			buf = append(buf, ':')
+			if *(*bool)(unsafe.Pointer(&p.v)) {
+				buf = append(buf, "true"...)
+			} else {
+				buf = append(buf, "false"...)
+			}
+		}
+	case int:
+		for i := range n {
+			if i > 0 {
+				buf = append(buf, ',')
+			}
+			p := &pairs[i]
+			buf = appendJSONString(buf, p.k)
+			buf = append(buf, ':')
+			buf = strconv.AppendInt(buf, int64(*(*int)(unsafe.Pointer(&p.v))), 10)
+		}
+	case int64:
+		for i := range n {
+			if i > 0 {
+				buf = append(buf, ',')
+			}
+			p := &pairs[i]
+			buf = appendJSONString(buf, p.k)
+			buf = append(buf, ':')
+			buf = strconv.AppendInt(buf, *(*int64)(unsafe.Pointer(&p.v)), 10)
+		}
+	case float64:
+		for i := range n {
+			if i > 0 {
+				buf = append(buf, ',')
+			}
+			p := &pairs[i]
+			buf = appendJSONString(buf, p.k)
+			buf = append(buf, ':')
+			buf, err = appendFloat64(buf, *(*float64)(unsafe.Pointer(&p.v)))
+			if err != nil {
+				break
+			}
+		}
+	default:
+		for i := range n {
+			if i > 0 {
+				buf = append(buf, ',')
+			}
+			p := &pairs[i]
+			buf = appendJSONString(buf, p.k)
+			buf = append(buf, ':')
+			buf, err = appendJSONValue(buf, any(p.v))
+			if err != nil {
+				break
+			}
 		}
 	}
-	enc.WriteObjectEnd()
 
-	if enc.Error != nil {
-		err := enc.Error
-		enc.Error = nil
-		jsonCfg.ReturnStream(enc)
+	if err != nil {
+		*bp = buf
+		bufPool.Put(bp)
 		return nil, err
 	}
 
-	out := append([]byte(nil), enc.Buffer()...)
-	jsonCfg.ReturnStream(enc)
+	buf = append(buf, '}')
+
+	out := make([]byte, len(buf))
+	copy(out, buf)
+
+	*bp = buf
+	bufPool.Put(bp)
+
 	return out, nil
 }

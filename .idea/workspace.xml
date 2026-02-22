@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="210fda7f-96f2-4738-9c2c-47480127c24e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/orderedobject.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/object.go" afterDir="false" />
-    </list>
+    <list default="true" id="210fda7f-96f2-4738-9c2c-47480127c24e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
