@@ -6,7 +6,13 @@
       "Bash(tee:*)",
       "Bash(cd /c/Users/joopt/Desktop/orderedobject && go mod tidy 2>&1)",
       "Bash(cd /c/Users/joopt/Desktop/orderedobject && go install golang.org/x/perf/cmd/benchstat@latest 2>&1)",
-      "Bash(benchstat:*)"
+      "Bash(benchstat:*)",
+      "Bash(tail:*)",
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go test -run . -count=1 2>&1)",
+      "Bash(head:*)",
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go version 2>&1)",
+      "Bash(cd /c/Users/joopt/Desktop/orderedobject && go test -run . -v -count=1 2>&1)",
+      "Bash(ls:*)"
     ]
   }
 }

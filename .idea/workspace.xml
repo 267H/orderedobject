@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="210fda7f-96f2-4738-9c2c-47480127c24e" name="Changes" comment="" />
+    <list default="true" id="210fda7f-96f2-4738-9c2c-47480127c24e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/object.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/object_bench_test.go" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,30 +40,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/joopt&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.GoLinterPluginOnboarding": "true",
+    "RunOnceActivity.GoLinterPluginOnboardingV2": "true",
+    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.analysis.ui.options.defaults": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "master",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "C:/Users/joopt",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-f466f9b0953e-146d08934cbf-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-252.27397.100" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-GO-252.27397.100" />
+        <option value="bundled-gosdk-72a9cf600ed8-dfa3e7267ae0-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-253.31033.129" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-GO-253.31033.129" />
       </set>
     </attachedChunks>
   </component>
@@ -74,7 +84,26 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="VgoProject">
-    <settings-migrated>true</settings-migrated>
+  <component name="VgoModernizerVersionTracker">
+    <upgrades>
+      <map>
+        <entry key="$PROJECT_DIR$/go.mod">
+          <value>
+            <VersionUpgradeInfo>
+              <version>1.26</version>
+              <timestamp>1771956179513</timestamp>
+            </VersionUpgradeInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/go.mod">
+          <value>
+            <VersionUpgradeInfo>
+              <version>1.26</version>
+              <timestamp>1771956179513</timestamp>
+            </VersionUpgradeInfo>
+          </value>
+        </entry>
+      </map>
+    </upgrades>
   </component>
 </project>
